@@ -381,13 +381,11 @@ class WorkoutTracker {
         this.renderWorkoutContent();
         
         // Focus the first field (reps/seconds/minutes) of the newly added set
-        setTimeout(() => {
-            const newSetIndex = workoutData.exercises[exerciseName].sets.length - 1;
-            const firstInput = document.querySelector(`[data-exercise="${exerciseName}"][data-set="${newSetIndex}"][data-field="reps"], [data-exercise="${exerciseName}"][data-set="${newSetIndex}"][data-field="seconds"], [data-exercise="${exerciseName}"][data-set="${newSetIndex}"][data-field="minutes"]`);
-            if (firstInput) {
-                firstInput.focus();
-            }
-        }, 0);
+        const newSetIndex = workoutData.exercises[exerciseName].sets.length - 1;
+        const firstInput = document.querySelector(`[data-exercise="${exerciseName}"][data-set="${newSetIndex}"][data-field="reps"], [data-exercise="${exerciseName}"][data-set="${newSetIndex}"][data-field="seconds"], [data-exercise="${exerciseName}"][data-set="${newSetIndex}"][data-field="minutes"]`);
+        if (firstInput) {
+            firstInput.focus();
+        }
     }
 
     removeSet(exerciseName, setIndex) {
