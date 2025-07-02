@@ -20,6 +20,11 @@ class WorkoutTracker {
         localStorage.setItem('workoutTrackerData', JSON.stringify(this.data));
     }
 
+    // Helper method to check if a value has data (handles 0 correctly)
+    hasValue(value) {
+        return value !== '' && value !== null && value !== undefined;
+    }
+
     getCurrentWeek() {
         const now = new Date();
         const startOfYear = new Date(now.getFullYear(), 0, 1);
@@ -140,10 +145,6 @@ class WorkoutTracker {
             
             let exercisesWithSets = 0;
             let totalExercises = 0;
-
-            const hasData = (value) => {
-                return value !== '' && value !== null && value !== undefined;
-            };
             
             // Check warm-up, circuit, and finisher exercises
             ['warmup', 'circuit', 'finisher'].forEach(section => {
@@ -153,8 +154,8 @@ class WorkoutTracker {
                     if (exerciseData && exerciseData.sets && exerciseData.sets.length > 0) {
                         // Check if any set has actual data
                         if (exerciseData.sets.some(set => {
-                            const hasValue = hasData(set.reps) || hasData(set.seconds) || hasData(set.minutes);
-                            const hasWeightOrNotes = exercise.weight ? hasData(set.weight) : true;
+                            const hasValue = this.hasValue(set.reps) || this.hasValue(set.seconds) || this.hasValue(set.minutes);
+                            const hasWeightOrNotes = exercise.weight ? this.hasValue(set.weight) : true;
                             return hasValue && hasWeightOrNotes;
                         })) {
                             exercisesWithSets++;
@@ -458,17 +459,28 @@ class WorkoutTracker {
                 const exerciseData = workoutData.exercises[exercise.name];
                 if (exerciseData && exerciseData.sets && exerciseData.sets.length > 0) {
                     const recordedSets = exerciseData.sets.filter(set => {
-                        const hasValue = set.reps || set.seconds || set.minutes;
-                        const hasWeightOrNotes = exercise.weight ? set.weight : set.notes;
+                        const hasValue = this.hasValue(set.reps) || this.hasValue(set.seconds) || this.hasValue(set.minutes);
+                        const hasWeightOrNotes = exercise.weight ? this.hasValue(set.weight) : true;
                         return hasValue && hasWeightOrNotes;
                     });
                     
                     if (recordedSets.length > 0) {
-                        const setsText = recordedSets.map(set => {
+                        // Group equivalent sets together
+                        const setGroups = {};
+                        recordedSets.forEach(set => {
                             const value = set.reps || set.seconds || set.minutes;
-                            const unit = set.reps ? 'x' : (set.seconds ? 'sx' : 'mx');
-                            const weightOrNotes = exercise.weight ? `${set.weight}lb` : set.notes;
-                            return `1x${value}${unit}${weightOrNotes}`;
+                            const unit = set.reps ? 'x' : (set.seconds ? 'sec' : 'min');
+                            const weight = exercise.weight ? `/${set.weight}lb` : '';
+                            const key = `${value}${unit}${weight}`;
+                            
+                            if (!setGroups[key]) {
+                                setGroups[key] = 0;
+                            }
+                            setGroups[key]++;
+                        });
+                        
+                        const setsText = Object.entries(setGroups).map(([key, count]) => {
+                            return `${count}x/${key}`;
                         }).join(', ');
                         
                         workoutText += `${exercise.name}: ${setsText}\n`;
@@ -505,8 +517,8 @@ class WorkoutTracker {
                         if (!exercise.sets || exercise.sets.length === 0) return false;
                         // Check if any set has actual data
                         return exercise.sets.some(set => {
-                            const hasValue = set.reps || set.seconds || set.minutes;
-                            const hasWeightOrNotes = set.weight || set.notes;
+                            const hasValue = this.hasValue(set.reps) || this.hasValue(set.seconds) || this.hasValue(set.minutes);
+                            const hasWeightOrNotes = this.hasValue(set.weight) || this.hasValue(set.notes);
                             return hasValue && hasWeightOrNotes;
                         });
                     });
