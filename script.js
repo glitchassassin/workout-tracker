@@ -140,6 +140,10 @@ class WorkoutTracker {
             
             let exercisesWithSets = 0;
             let totalExercises = 0;
+
+            const hasData = (value) => {
+                return value !== '' && value !== null && value !== undefined;
+            };
             
             // Check warm-up, circuit, and finisher exercises
             ['warmup', 'circuit', 'finisher'].forEach(section => {
@@ -148,12 +152,11 @@ class WorkoutTracker {
                     const exerciseData = workout.exercises[exercise.name];
                     if (exerciseData && exerciseData.sets && exerciseData.sets.length > 0) {
                         // Check if any set has actual data
-                        const hasData = exerciseData.sets.some(set => {
-                            const hasValue = set.reps || set.seconds || set.minutes;
-                            const hasWeightOrNotes = exercise.weight ? set.weight : true;
+                        if (exerciseData.sets.some(set => {
+                            const hasValue = hasData(set.reps) || hasData(set.seconds) || hasData(set.minutes);
+                            const hasWeightOrNotes = exercise.weight ? hasData(set.weight) : true;
                             return hasValue && hasWeightOrNotes;
-                        });
-                        if (hasData) {
+                        })) {
                             exercisesWithSets++;
                         }
                     }
