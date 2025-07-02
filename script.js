@@ -150,7 +150,7 @@ class WorkoutTracker {
                         // Check if any set has actual data
                         const hasData = exerciseData.sets.some(set => {
                             const hasValue = set.reps || set.seconds || set.minutes;
-                            const hasWeightOrNotes = exercise.weight ? set.weight : set.notes;
+                            const hasWeightOrNotes = exercise.weight ? set.weight : true;
                             return hasValue && hasWeightOrNotes;
                         });
                         if (hasData) {
