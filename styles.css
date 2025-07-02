@@ -284,7 +284,9 @@ h2 {
     color: #ffffff;
     padding: 8px 10px;
     width: 60px;
-    text-align: center;
+}
+.set-input.notes {
+    flex-grow: 1;
 }
 
 .set-input:focus {
@@ -298,6 +300,8 @@ h2 {
 }
 
 .set-inputs {
+    flex-grow: 1;
+
     display: flex;
     gap: 10px;
     align-items: center;

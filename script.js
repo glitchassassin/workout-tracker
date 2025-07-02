@@ -36,24 +36,24 @@ class WorkoutTracker {
                 warmup: {
                     title: "Warm-up (5 min)",
                     exercises: [
-                        { name: "Incline walk or row", type: "time", target: "5 min" },
-                        { name: "Dynamic stretches", type: "time", target: "5 min" }
+                        { name: "Incline walk or row", type: "minutes", target: "5 min", weight: false },
+                        { name: "Dynamic stretches", type: "minutes", target: "5 min", weight: false }
                     ]
                 },
                 circuit: {
                     title: "Strength Circuit (3 rounds, 20-25 min total)",
                     exercises: [
-                        { name: "Deadlifts", type: "reps", target: "6 reps" },
-                        { name: "Pull-ups (or assisted)", type: "reps", target: "max reps" },
-                        { name: "Dumbbell Rows", type: "reps", target: "10/side" },
-                        { name: "Farmer's Carries", type: "time", target: "30 sec walk" }
+                        { name: "Deadlifts", type: "reps", target: "6 reps", weight: true },
+                        { name: "Pull-ups (or assisted)", type: "reps", target: "max reps", weight: true },
+                        { name: "Dumbbell Rows", type: "reps", target: "10 reps", weight: true },
+                        { name: "Farmer's Carries", type: "seconds", target: "30s walk", weight: true }
                     ]
                 },
                 finisher: {
                     title: "Grip Finisher (5-10 min)",
                     exercises: [
-                        { name: "Hanging hold", type: "time", target: "2x max" },
-                        { name: "Towel curls or plate pinches", type: "reps", target: "2x10" }
+                        { name: "Hanging hold", type: "seconds", target: "2x max", weight: true },
+                        { name: "Towel curls or plate pinches", type: "reps", target: "2x10", weight: true }
                     ]
                 }
             },
@@ -63,26 +63,26 @@ class WorkoutTracker {
                 warmup: {
                     title: "Warm-up (5 min)",
                     exercises: [
-                        { name: "Treadmill jog or bike", type: "time", target: "5 min" },
-                        { name: "Mobility drills", type: "time", target: "5 min" }
+                        { name: "Treadmill jog or bike", type: "minutes", target: "5 min", weight: false },
+                        { name: "Mobility drills", type: "minutes", target: "5 min", weight: false }
                     ]
                 },
                 circuit: {
                     title: "Conditioning Circuit (3 rounds, 20-25 min)",
                     exercises: [
-                        { name: "2-min run or 400m", type: "time", target: "2 min" },
-                        { name: "Burpees", type: "reps", target: "10" },
-                        { name: "Box jumps or step-ups", type: "reps", target: "15" },
-                        { name: "Russian Twists (weighted)", type: "reps", target: "20" },
-                        { name: "Push-ups", type: "reps", target: "10" }
+                        { name: "2-min run or 400m", type: "minutes", target: "2 min", weight: false },
+                        { name: "Burpees", type: "reps", target: "10 reps", weight: false },
+                        { name: "Box jumps or step-ups", type: "reps", target: "15 reps", weight: false },
+                        { name: "Russian Twists (weighted)", type: "reps", target: "20 reps", weight: true },
+                        { name: "Push-ups", type: "reps", target: "10 reps", weight: false }
                     ]
                 },
                 finisher: {
                     title: "Core Finisher (5-10 min)",
                     exercises: [
-                        { name: "Plank", type: "time", target: "1 min" },
-                        { name: "Hanging knee raises", type: "reps", target: "10 reps" },
-                        { name: "Side planks", type: "time", target: "30 sec/side" }
+                        { name: "Plank", type: "minutes", target: "1 min", weight: false },
+                        { name: "Hanging knee raises", type: "reps", target: "2x10", weight: false },
+                        { name: "Side planks", type: "seconds", target: "2x30s", weight: false }
                     ]
                 }
             },
@@ -92,26 +92,26 @@ class WorkoutTracker {
                 warmup: {
                     title: "Warm-up (5 min)",
                     exercises: [
-                        { name: "Jump rope, row, or treadmill", type: "time", target: "5 min" },
-                        { name: "Shoulder and hip mobility", type: "time", target: "5 min" }
+                        { name: "Jump rope, row, or treadmill", type: "minutes", target: "5 min", weight: false },
+                        { name: "Shoulder and hip mobility", type: "minutes", target: "5 min", weight: false }
                     ]
                 },
                 circuit: {
                     title: "Compound Strength Circuit (3 rounds)",
                     exercises: [
-                        { name: "Dumbbell Thrusters or Push Press", type: "reps", target: "8 reps" },
-                        { name: "Walking Lunges (weighted or bodyweight)", type: "reps", target: "20 steps" },
-                        { name: "TRX Rows or Inverted Rows", type: "reps", target: "10-12 reps" },
-                        { name: "Kettlebell Swings or Dumbbell Snatches", type: "reps", target: "10 reps/side" }
+                        { name: "Dumbbell Thrusters or Push Press", type: "reps", target: "8 reps", weight: true },
+                        { name: "Walking Lunges (weighted or bodyweight)", type: "reps", target: "20 reps", weight: true },
+                        { name: "TRX Rows or Inverted Rows", type: "reps", target: "10-12 reps", weight: false },
+                        { name: "Kettlebell Swings or Dumbbell Snatches", type: "reps", target: "10 reps", weight: true }
                     ]
                 },
                 finisher: {
                     title: "MetCon Finisher (1 round, 5-10 min)",
                     exercises: [
-                        { name: "Ground-to-Overhead", type: "reps", target: "10" },
-                        { name: "Goblet Squats", type: "reps", target: "15" },
-                        { name: "Mountain Climbers", type: "reps", target: "20" },
-                        { name: "200m Run", type: "time", target: "200m" }
+                        { name: "Ground-to-Overhead", type: "reps", target: "10 reps", weight: true },
+                        { name: "Goblet Squats", type: "reps", target: "15 reps", weight: true },
+                        { name: "Mountain Climbers", type: "reps", target: "20 reps", weight: false },
+                        { name: "200m Run", type: "seconds", target: "200m", weight: false }
                     ]
                 }
             }
@@ -147,7 +147,15 @@ class WorkoutTracker {
                     totalExercises++;
                     const exerciseData = workout.exercises[exercise.name];
                     if (exerciseData && exerciseData.sets && exerciseData.sets.length > 0) {
-                        exercisesWithSets++;
+                        // Check if any set has actual data
+                        const hasData = exerciseData.sets.some(set => {
+                            const hasValue = set.reps || set.seconds || set.minutes;
+                            const hasWeightOrNotes = exercise.weight ? set.weight : set.notes;
+                            return hasValue && hasWeightOrNotes;
+                        });
+                        if (hasData) {
+                            exercisesWithSets++;
+                        }
                     }
                 });
             });
@@ -274,20 +282,26 @@ class WorkoutTracker {
     }
 
     renderSet(exercise, set, index) {
-        const isTimeBased = exercise.type === 'time';
-        const inputType = isTimeBased ? 'time' : 'reps';
-        const inputValue = isTimeBased ? (set.time || '') : (set.reps || '');
+        const isTimeBased = exercise.type === 'seconds' || exercise.type === 'minutes';
+        const inputType = isTimeBased ? exercise.type : 'reps';
+        const inputValue = isTimeBased ? (set[exercise.type] || '') : (set.reps || '');
+        const unit = exercise.type === 'seconds' ? 'sec' : exercise.type === 'minutes' ? 'min' : 'reps';
+        
+        const weightField = exercise.weight ? 
+            `<input type="number" class="set-input" data-exercise="${exercise.name}" data-set="${index}" data-field="weight" 
+                    value="${set.weight || ''}" placeholder="weight">
+             <span class="set-unit">${set.unit || 'lb'}</span>` :
+            `<input type="text" class="set-input notes" data-exercise="${exercise.name}" data-set="${index}" data-field="notes" 
+                    value="${set.notes || ''}" placeholder="notes">`;
         
         return `
             <div class="set-row">
                 <div class="set-inputs">
                     <span class="set-number">${index + 1}</span>
                     <input type="number" class="set-input" data-exercise="${exercise.name}" data-set="${index}" data-field="${inputType}" 
-                           value="${inputValue}" placeholder="${isTimeBased ? 'sec' : 'reps'}">
-                    <span class="set-unit">${isTimeBased ? 'sec' : 'reps'}</span>
-                    <input type="number" class="set-input" data-exercise="${exercise.name}" data-set="${index}" data-field="weight" 
-                           value="${set.weight || ''}" placeholder="weight">
-                    <span class="set-unit">${set.unit || 'lb'}</span>
+                           value="${inputValue}" placeholder="${unit}">
+                    <span class="set-unit">${unit}</span>
+                    ${weightField}
                 </div>
                 <button class="remove-set-btn" data-exercise="${exercise.name}" data-set="${index}">×</button>
             </div>
@@ -354,8 +368,10 @@ class WorkoutTracker {
         
         workoutData.exercises[exerciseName].sets.push({
             reps: '',
-            time: '',
+            seconds: '',
+            minutes: '',
             weight: '',
+            notes: '',
             unit: 'lb'
         });
         
@@ -431,15 +447,18 @@ class WorkoutTracker {
             workout[section].exercises.forEach(exercise => {
                 const exerciseData = workoutData.exercises[exercise.name];
                 if (exerciseData && exerciseData.sets && exerciseData.sets.length > 0) {
-                    const recordedSets = exerciseData.sets.filter(set => 
-                        (set.reps || set.time) && set.weight
-                    );
+                    const recordedSets = exerciseData.sets.filter(set => {
+                        const hasValue = set.reps || set.seconds || set.minutes;
+                        const hasWeightOrNotes = exercise.weight ? set.weight : set.notes;
+                        return hasValue && hasWeightOrNotes;
+                    });
                     
                     if (recordedSets.length > 0) {
                         const setsText = recordedSets.map(set => {
-                            const value = set.reps || set.time;
-                            const unit = set.reps ? 'x' : 'sx';
-                            return `1x${value}${unit}${set.weight}lb`;
+                            const value = set.reps || set.seconds || set.minutes;
+                            const unit = set.reps ? 'x' : (set.seconds ? 'sx' : 'mx');
+                            const weightOrNotes = exercise.weight ? `${set.weight}lb` : set.notes;
+                            return `1x${value}${unit}${weightOrNotes}`;
                         }).join(', ');
                         
                         workoutText += `${exercise.name}: ${setsText}\n`;
@@ -472,9 +491,15 @@ class WorkoutTracker {
                 // Check if any workout has any exercises with sets
                 return [1, 2, 3].some(workoutNum => {
                     const workout = weekData.workouts[workoutNum];
-                    return Object.values(workout.exercises).some(exercise => 
-                        exercise.sets && exercise.sets.length > 0
-                    );
+                    return Object.values(workout.exercises).some(exercise => {
+                        if (!exercise.sets || exercise.sets.length === 0) return false;
+                        // Check if any set has actual data
+                        return exercise.sets.some(set => {
+                            const hasValue = set.reps || set.seconds || set.minutes;
+                            const hasWeightOrNotes = set.weight || set.notes;
+                            return hasValue && hasWeightOrNotes;
+                        });
+                    });
                 });
             });
         
