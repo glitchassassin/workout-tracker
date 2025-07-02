@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workout Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app">
+        <header>
+            <h1>Workout Tracker</h1>
+            <div class="header-actions">
+                <button id="exportBtn" class="btn-secondary">Export</button>
+                <button id="importBtn" class="btn-secondary">Import</button>
+                <input type="file" id="importInput" accept=".json" style="display: none;">
+            </div>
+        </header>
+
+        <main>
+            <!-- Week Overview -->
+            <section class="week-overview">
+                <h2>Week Overview</h2>
+                <div id="weekList" class="week-list">
+                    <!-- Weeks will be populated here -->
+                </div>
+            </section>
+
+            <!-- Workout Tabs -->
+            <section class="workout-section">
+                <div class="workout-tabs">
+                    <button class="tab-btn active" data-workout="1">
+                        <span class="tab-label">Workout 1</span>
+                        <span class="status-dot incomplete"></span>
+                    </button>
+                    <button class="tab-btn" data-workout="2">
+                        <span class="tab-label">Workout 2</span>
+                        <span class="status-dot incomplete"></span>
+                    </button>
+                    <button class="tab-btn" data-workout="3">
+                        <span class="tab-label">Workout 3</span>
+                        <span class="status-dot incomplete"></span>
+                    </button>
+                </div>
+
+                <!-- Workout Content -->
+                <div id="workoutContent" class="workout-content">
+                    <!-- Workout content will be populated here -->
+                </div>
+
+                <!-- Copy Workout Button -->
+                <div class="copy-section">
+                    <button id="copyWorkoutBtn" class="btn-primary">Copy Today's Workout</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
