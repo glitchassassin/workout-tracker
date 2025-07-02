@@ -53,7 +53,7 @@ class WorkoutTracker {
                     title: "Grip Finisher (5-10 min)",
                     exercises: [
                         { name: "Hanging hold", type: "seconds", target: "2x max", weight: true },
-                        { name: "Towel curls or plate pinches", type: "seconds", target: "2x30s", weight: true }
+                        { name: "Plate pinches", type: "seconds", target: "2x30s", weight: true }
                     ]
                 }
             },
