@@ -4,7 +4,7 @@ class WorkoutTracker {
     this.data = this.loadData();
     this.today = this.getCurrentDate();
     this.selectedDate = this.today;
-    this.currentWorkout = this.getNextWorkoutType();
+    this.currentWorkout = this.getCurrentWorkoutType();
 
     this.initializeEventListeners();
     this.render();
@@ -31,17 +31,30 @@ class WorkoutTracker {
     for (let i = this.data.workouts.length - 1; i >= 0; i--) {
       const workout = this.data.workouts[i];
       const exerciseData = workout.exercises[exerciseName];
-      if (exerciseData && exerciseData.weight && this.hasValue(exerciseData.weight)) {
+      if (
+        exerciseData &&
+        exerciseData.weight &&
+        this.hasValue(exerciseData.weight)
+      ) {
         return exerciseData.weight;
       }
     }
-    
+
     return ""; // No previous weight found
   }
 
   getCurrentDate() {
     const now = new Date();
     return now.toISOString().split("T")[0]; // YYYY-MM-DD format
+  }
+
+  getCurrentWorkoutType() {
+    // Check if today's workout exists and has data
+    const todaysWorkout = this.data.workouts.find(
+      (workout) => workout.date === this.today
+    );
+
+    return todaysWorkout?.type ?? this.getNextWorkoutType();
   }
 
   getNextWorkoutType() {
@@ -153,6 +166,9 @@ class WorkoutTracker {
 
   // UI Rendering
   render() {
+    // Update current workout type to ensure it's always current
+    this.currentWorkout = this.getCurrentWorkoutType();
+
     this.renderWorkoutHistory();
     this.renderCurrentWorkoutHeader();
     this.renderWorkoutContent();
@@ -268,7 +284,9 @@ class WorkoutTracker {
                         <input type="number" class="weight-input" data-exercise="${
                           exercise.name
                         }" data-field="weight" 
-                            value="${weight}" placeholder="${placeholderWeight || '0'}">
+                            value="${weight}" placeholder="${
+      placeholderWeight || "0"
+    }">
                         <span class="weight-unit">lb</span>
                     </div>
                 </div>
