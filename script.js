@@ -87,7 +87,7 @@ class WorkoutTracker {
         exercises: [
           { name: "Squat", type: "5x5", weight: true },
           { name: "Bench Press", type: "5x5", weight: true },
-          { name: "Deadlift", type: "5x5", weight: true },
+          { name: "Barbell Row", type: "5x5", weight: true },
           { name: "Pull-ups", type: "pullups", weight: false },
         ],
       };
