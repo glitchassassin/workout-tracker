@@ -1,10 +1,10 @@
-// Workout Tracker Application
+// Workout Tracker Application - 5x5 Routine
 class WorkoutTracker {
     constructor() {
         this.data = this.loadData();
-        this.currentWeek = this.getCurrentWeek();
-        this.currentWorkout = 1;
-        this.workoutPlan = this.getWorkoutPlan();
+        this.today = this.getCurrentDate();
+        this.selectedDate = this.today;
+        this.currentWorkout = this.getNextWorkoutType();
         
         this.initializeEventListeners();
         this.render();
@@ -13,7 +13,7 @@ class WorkoutTracker {
     // Data Management
     loadData() {
         const saved = localStorage.getItem('workoutTrackerData');
-        return saved ? JSON.parse(saved) : { weeks: {} };
+        return saved ? JSON.parse(saved) : { workouts: [] };
     }
 
     saveData() {
@@ -25,289 +25,252 @@ class WorkoutTracker {
         return value !== '' && value !== null && value !== undefined;
     }
 
-    getCurrentWeek() {
+    getCurrentDate() {
         const now = new Date();
-        const startOfYear = new Date(now.getFullYear(), 0, 1);
-        const days = Math.floor((now - startOfYear) / (24 * 60 * 60 * 1000));
-        return Math.ceil((days + startOfYear.getDay() + 1) / 7);
+        return now.toISOString().split('T')[0]; // YYYY-MM-DD format
+    }
+
+    getNextWorkoutType() {
+        // Get the most recent workout from history to determine the next type
+        if (this.data.workouts.length === 0) {
+            // No previous workouts, start with A
+            return 'A';
+        }
+        
+        // Get the most recent workout type and alternate
+        const mostRecentWorkout = this.data.workouts[this.data.workouts.length - 1];
+        return mostRecentWorkout.type === 'A' ? 'B' : 'A';
     }
 
     // Workout Plan Definition
-    getWorkoutPlan() {
-        return {
-            1: {
-                name: "Strength & Grip",
-                duration: "40-45 min",
-                warmup: {
-                    title: "Warm-up (5 min)",
-                    exercises: [
-                        { name: "Incline walk or row", type: "minutes", target: "5 min", weight: false },
-                        { name: "Dynamic stretches", type: "minutes", target: "5 min", weight: false }
-                    ]
-                },
-                circuit: {
-                    title: "Strength Circuit (3 rounds, 20-25 min total)",
-                    exercises: [
-                        { name: "Deadlifts", type: "reps", target: "6 reps", weight: true },
-                        { name: "Pull-ups (or assisted)", type: "reps", target: "max reps", weight: true },
-                        { name: "Dumbbell Rows", type: "reps", target: "10 reps", weight: true },
-                        { name: "Farmer's Carries", type: "seconds", target: "30s walk", weight: true }
-                    ]
-                },
-                finisher: {
-                    title: "Grip Finisher (5-10 min)",
-                    exercises: [
-                        { name: "Hanging hold", type: "seconds", target: "2x max", weight: true },
-                        { name: "Plate pinches", type: "seconds", target: "2x30s", weight: true }
-                    ]
-                }
-            },
-            2: {
-                name: "Endurance & Core",
-                duration: "30-40 min",
-                warmup: {
-                    title: "Warm-up (5 min)",
-                    exercises: [
-                        { name: "Treadmill jog or bike", type: "minutes", target: "5 min", weight: false },
-                        { name: "Mobility drills", type: "minutes", target: "5 min", weight: false }
-                    ]
-                },
-                circuit: {
-                    title: "Conditioning Circuit (3 rounds, 20-25 min)",
-                    exercises: [
-                        { name: "2-min run or 400m", type: "minutes", target: "2 min", weight: false },
-                        { name: "Burpees", type: "reps", target: "10 reps", weight: false },
-                        { name: "Box jumps or step-ups", type: "reps", target: "15 reps", weight: false },
-                        { name: "Russian Twists (weighted)", type: "reps", target: "20 reps", weight: true },
-                        { name: "Push-ups", type: "reps", target: "10 reps", weight: false }
-                    ]
-                },
-                finisher: {
-                    title: "Core Finisher (5-10 min)",
-                    exercises: [
-                        { name: "Plank", type: "minutes", target: "1 min", weight: false },
-                        { name: "Hanging knee raises", type: "reps", target: "2x10", weight: false },
-                        { name: "Side planks", type: "seconds", target: "2x30s", weight: false }
-                    ]
-                }
-            },
-            3: {
-                name: "Full Body Power",
-                duration: "40-45 min",
-                warmup: {
-                    title: "Warm-up (5 min)",
-                    exercises: [
-                        { name: "Jump rope, row, or treadmill", type: "minutes", target: "5 min", weight: false },
-                        { name: "Shoulder and hip mobility", type: "minutes", target: "5 min", weight: false }
-                    ]
-                },
-                circuit: {
-                    title: "Compound Strength Circuit (3 rounds)",
-                    exercises: [
-                        { name: "Dumbbell Thrusters or Push Press", type: "reps", target: "8 reps", weight: true },
-                        { name: "Walking Lunges (weighted or bodyweight)", type: "reps", target: "20 reps", weight: true },
-                        { name: "TRX Rows or Inverted Rows", type: "reps", target: "10-12 reps", weight: false },
-                        { name: "Kettlebell Swings or Dumbbell Snatches", type: "reps", target: "10 reps", weight: true }
-                    ]
-                },
-                finisher: {
-                    title: "MetCon Finisher (1 round, 5-10 min)",
-                    exercises: [
-                        { name: "Ground-to-Overhead", type: "reps", target: "10 reps", weight: true },
-                        { name: "Goblet Squats", type: "reps", target: "15 reps", weight: true },
-                        { name: "Mountain Climbers", type: "reps", target: "20 reps", weight: false },
-                        { name: "200m Run", type: "seconds", target: "200m", weight: false }
-                    ]
-                }
-            }
-        };
-    }
-
-    // Week Management
-    getWeekData(weekNumber) {
-        if (!this.data.weeks[weekNumber]) {
-            this.data.weeks[weekNumber] = {
-                workouts: {
-                    1: { exercises: {} },
-                    2: { exercises: {} },
-                    3: { exercises: {} }
-                }
+    getWorkoutPlan(workoutType) {
+        if (workoutType === 'A') {
+            return {
+                name: "Workout A",
+                exercises: [
+                    { name: "Squat", type: "5x5", weight: true },
+                    { name: "Overhead Press", type: "5x5", weight: true },
+                    { name: "Deadlift", type: "5x5", weight: true },
+                    { name: "Pull-ups", type: "pullups", weight: false }
+                ]
+            };
+        } else {
+            return {
+                name: "Workout B",
+                exercises: [
+                    { name: "Squat", type: "5x5", weight: true },
+                    { name: "Bench Press", type: "5x5", weight: true },
+                    { name: "Deadlift", type: "5x5", weight: true },
+                    { name: "Pull-ups", type: "pullups", weight: false }
+                ]
             };
         }
-        return this.data.weeks[weekNumber];
     }
 
-    getWeekStatus(weekNumber) {
-        const weekData = this.getWeekData(weekNumber);
-        const workoutStatuses = [1, 2, 3].map(workoutNum => {
-            const workout = weekData.workouts[workoutNum];
-            const exercises = this.workoutPlan[workoutNum];
+    // Workout Data Management
+    getWorkoutData(date) {
+        let workoutData = this.data.workouts.find(workout => workout.date === date);
+        
+        if (!workoutData) {
+            // Create new workout data
+            workoutData = {
+                date: date,
+                type: this.getWorkoutTypeForDate(date),
+                exercises: {}
+            };
+            this.data.workouts.push(workoutData);
+        }
+        
+        return workoutData;
+    }
+
+    getWorkoutTypeForDate(date) {
+        // For existing workouts, use their stored type
+        const existingWorkout = this.data.workouts.find(workout => workout.date === date);
+        if (existingWorkout) {
+            return existingWorkout.type;
+        }
+        
+        // For new dates, determine based on workout history
+        return this.getNextWorkoutType();
+    }
+
+    getWorkoutStatus(date) {
+        const workoutData = this.data.workouts.find(workout => workout.date === date);
+        if (!workoutData) return 'incomplete';
+        
+        let exercisesWithData = 0;
+        let totalExercises = 0;
+        
+        const workoutPlan = this.getWorkoutPlan(workoutData.type);
+        workoutPlan.exercises.forEach(exercise => {
+            totalExercises++;
+            const exerciseData = workoutData.exercises[exercise.name];
             
-            let exercisesWithSets = 0;
-            let totalExercises = 0;
-            
-            // Check warm-up, circuit, and finisher exercises
-            ['warmup', 'circuit', 'finisher'].forEach(section => {
-                exercises[section].exercises.forEach(exercise => {
-                    totalExercises++;
-                    const exerciseData = workout.exercises[exercise.name];
-                    if (exerciseData && exerciseData.sets && exerciseData.sets.length > 0) {
-                        // Check if any set has actual data
-                        if (exerciseData.sets.some(set => {
-                            const hasValue = this.hasValue(set.reps) || this.hasValue(set.seconds) || this.hasValue(set.minutes);
-                            const hasWeightOrNotes = exercise.weight ? this.hasValue(set.weight) : true;
-                            return hasValue && hasWeightOrNotes;
-                        })) {
-                            exercisesWithSets++;
-                        }
+            if (exerciseData) {
+                if (exercise.type === '5x5') {
+                    // Check if weight is filled and at least one rep field has data
+                    if (this.hasValue(exerciseData.weight) && 
+                        exerciseData.reps && 
+                        exerciseData.reps.some(rep => this.hasValue(rep))) {
+                        exercisesWithData++;
                     }
-                });
-            });
-            
-            if (exercisesWithSets === 0) return 'incomplete';
-            if (exercisesWithSets === totalExercises) return 'complete';
-            return 'partial';
+                } else if (exercise.type === 'pullups') {
+                    // Check if pullups reps are filled
+                    if (this.hasValue(exerciseData.reps)) {
+                        exercisesWithData++;
+                    }
+                }
+            }
         });
         
-        return workoutStatuses;
+        if (exercisesWithData === 0) return 'incomplete';
+        if (exercisesWithData === totalExercises) return 'complete';
+        return 'partial';
     }
 
     // UI Rendering
     render() {
-        this.renderWeekList();
-        this.renderWorkoutTabs();
+        this.renderWorkoutHistory();
+        this.renderCurrentWorkoutHeader();
         this.renderWorkoutContent();
     }
 
-    renderWeekList() {
-        const weekList = document.getElementById('weekList');
-        weekList.innerHTML = '';
+    renderWorkoutHistory() {
+        const workoutHistory = document.getElementById('workoutHistory');
+        workoutHistory.innerHTML = '';
         
-        // Determine the range of weeks to show based on current date
-        const currentWeekOfYear = this.getCurrentWeek();
-        const oldestWeekWithData = this.getOldestWeekWithData();
-        const twoWeeksAgo = Math.max(1, currentWeekOfYear - 2);
-        const startWeek = Math.min(twoWeeksAgo, oldestWeekWithData - 1);
+        // Get workouts with data
+        const workoutsWithData = this.data.workouts.filter(workout => this.hasWorkoutData(workout.date));
         
-        const weeksToShow = [];
-        for (let i = startWeek; i <= currentWeekOfYear; i++) {
-            weeksToShow.push(i);
+        // Always include today if it's not already in the list
+        let allWorkouts = [...workoutsWithData];
+        const todayExists = allWorkouts.some(workout => workout.date === this.today);
+        
+        if (!todayExists) {
+            // Add today's workout (even if empty) to the end
+            allWorkouts.push({
+                date: this.today,
+                type: this.getWorkoutTypeForDate(this.today),
+                exercises: {}
+            });
         }
         
-        weeksToShow.forEach(weekNum => {
-            const weekItem = document.createElement('div');
-            weekItem.className = `week-item ${weekNum === this.currentWeek ? 'selected' : ''}`;
+        // Show last 10 workouts (newest first), ensuring today is included
+        const recentWorkouts = allWorkouts.slice(-10);
+        
+        recentWorkouts.forEach(workout => {
+            const status = this.getWorkoutStatus(workout.date);
+            const shortDate = this.formatShortDate(workout.date);
+            const isSelected = workout.date === this.selectedDate;
+            const isToday = workout.date === this.today;
             
-            const weekDate = this.getWeekDateRange(weekNum);
-            const statuses = this.getWeekStatus(weekNum);
+            const workoutItem = document.createElement('div');
+            workoutItem.className = `workout-history-item ${isSelected ? 'selected' : ''} ${isToday ? 'today' : ''}`;
             
-            weekItem.innerHTML = `
-                <div class="week-header">
-                    <div class="week-date">${weekDate}</div>
-                    <div class="week-status">
-                        ${statuses.map(status => `<span class="status-dot ${status}"></span>`).join('')}
-                    </div>
+            workoutItem.innerHTML = `
+                <div class="workout-history-header">
+                    <div class="workout-date">${shortDate}</div>
+                    <div class="workout-type">${workout.type}</div>
+                    <span class="status-dot ${status}"></span>
                 </div>
             `;
             
-            weekItem.addEventListener('click', () => {
-                this.currentWeek = weekNum;
+            workoutItem.addEventListener('click', () => {
+                this.selectedDate = workout.date;
+                this.currentWorkout = workout.type;
                 this.render();
             });
             
-            weekList.appendChild(weekItem);
+            workoutHistory.appendChild(workoutItem);
         });
         
-        // Scroll to the most recent week (right side)
+        // Scroll to the most recent workout (right side)
         setTimeout(() => {
-            weekList.scrollLeft = weekList.scrollWidth;
+            workoutHistory.scrollLeft = workoutHistory.scrollWidth;
         }, 100);
     }
 
-    renderWorkoutTabs() {
-        const tabBtns = document.querySelectorAll('.tab-btn');
-        const statuses = this.getWeekStatus(this.currentWeek);
+    renderCurrentWorkoutHeader() {
+        const workoutTitle = document.getElementById('currentWorkoutTitle');
+        const workoutDate = document.getElementById('currentWorkoutDate');
+        const workout = this.getWorkoutPlan(this.currentWorkout);
         
-        tabBtns.forEach((btn, index) => {
-            const workoutNum = index + 1;
-            const status = statuses[index];
-            
-            btn.className = `tab-btn ${workoutNum === this.currentWorkout ? 'active' : ''}`;
-            btn.querySelector('.status-dot').className = `status-dot ${status}`;
-            
-            btn.onclick = () => {
-                this.currentWorkout = workoutNum;
-                this.renderWorkoutTabs();
-                this.renderWorkoutContent();
-            };
-        });
+        workoutTitle.textContent = workout.name;
+        workoutDate.textContent = this.formatShortDate(this.selectedDate);
     }
+
+
 
     renderWorkoutContent() {
         const content = document.getElementById('workoutContent');
-        const workout = this.workoutPlan[this.currentWorkout];
-        const weekData = this.getWeekData(this.currentWeek);
-        const workoutData = weekData.workouts[this.currentWorkout];
+        const workout = this.getWorkoutPlan(this.currentWorkout);
+        const workoutData = this.getWorkoutData(this.selectedDate);
         
         content.innerHTML = `
-            <h3>${workout.name} - ${workout.duration}</h3>
-            ${this.renderSection('warmup', workout.warmup, workoutData)}
-            ${this.renderSection('circuit', workout.circuit, workoutData)}
-            ${this.renderSection('finisher', workout.finisher, workoutData)}
+            ${workout.exercises.map(exercise => this.renderExercise(exercise, workoutData)).join('')}
         `;
         
         // Add event listeners to inputs
         this.addInputEventListeners();
     }
 
-    renderSection(sectionKey, section, workoutData) {
-        return `
-            <div class="workout-section-title">${section.title}</div>
-            ${section.exercises.map(exercise => this.renderExercise(exercise, workoutData)).join('')}
-        `;
+    renderExercise(exercise, workoutData) {
+        const exerciseData = workoutData.exercises[exercise.name] || {};
+        
+        if (exercise.type === '5x5') {
+            return this.render5x5Exercise(exercise, exerciseData);
+        } else if (exercise.type === 'pullups') {
+            return this.renderPullupsExercise(exercise, exerciseData);
+        }
+        
+        return '';
     }
 
-    renderExercise(exercise, workoutData) {
-        const exerciseData = workoutData.exercises[exercise.name] || { sets: [] };
-        const sets = exerciseData.sets;
+    render5x5Exercise(exercise, exerciseData) {
+        const weight = exerciseData.weight || '';
+        const reps = exerciseData.reps || ['', '', '', '', ''];
         
         return `
             <div class="exercise-item">
                 <div class="exercise-header">
                     <div class="exercise-name">${exercise.name}</div>
-                    <div class="exercise-target">${exercise.target}</div>
+                    <div>
+                        <input type="number" class="weight-input" data-exercise="${exercise.name}" data-field="weight" 
+                            value="${weight}" placeholder="0">
+                        <span class="weight-unit">lb</span>
+                    </div>
                 </div>
-                <div class="sets-container">
-                    ${sets.map((set, index) => this.renderSet(exercise, set, index)).join('')}
+                <div class="exercise-5x5">
+                    <div class="sets-row">
+                        <div class="set-inputs-5x5">
+                            ${reps.map((rep, index) => `
+                                <div class="rep-field">
+                                    <div class="set-number-5x5">${index + 1}</div>
+                                    <input type="number" class="set-input-5x5" data-exercise="${exercise.name}" data-field="reps" data-set="${index}" 
+                                           value="${rep}" placeholder="0">
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
                 </div>
-                <button class="add-set-btn" data-exercise="${exercise.name}">Add Set</button>
             </div>
         `;
     }
 
-    renderSet(exercise, set, index) {
-        const isTimeBased = exercise.type === 'seconds' || exercise.type === 'minutes';
-        const inputType = isTimeBased ? exercise.type : 'reps';
-        const inputValue = isTimeBased ? (set[exercise.type] || '') : (set.reps || '');
-        const unit = exercise.type === 'seconds' ? 'sec' : exercise.type === 'minutes' ? 'min' : 'reps';
-        
-        const weightField = exercise.weight ? 
-            `<input type="number" class="set-input" data-exercise="${exercise.name}" data-set="${index}" data-field="weight" 
-                    value="${set.weight || ''}" placeholder="weight">
-             <span class="set-unit">${set.unit || 'lb'}</span>` :
-            `<input type="text" class="set-input notes" data-exercise="${exercise.name}" data-set="${index}" data-field="notes" 
-                    value="${set.notes || ''}" placeholder="notes">`;
+    renderPullupsExercise(exercise, exerciseData) {
+        const reps = exerciseData.reps || '';
         
         return `
-            <div class="set-row">
-                <div class="set-inputs">
-                    <span class="set-number">${index + 1}</span>
-                    <input type="number" class="set-input" data-exercise="${exercise.name}" data-set="${index}" data-field="${inputType}" 
-                           value="${inputValue}" placeholder="${unit}">
-                    <span class="set-unit">${unit}</span>
-                    ${weightField}
+            <div class="exercise-item">
+                <div class="exercise-header">
+                    <div class="exercise-name">${exercise.name}</div>
+                    <div>
+                        <input type="number" class="pullups-input" data-exercise="${exercise.name}" data-field="reps" 
+                               value="${reps}" placeholder="0">
+                        <span class="pullups-unit">reps</span>
+                    </div>
                 </div>
-                <button class="remove-set-btn" data-exercise="${exercise.name}" data-set="${index}">×</button>
             </div>
         `;
     }
@@ -318,24 +281,37 @@ class WorkoutTracker {
         document.getElementById('importBtn').addEventListener('click', () => document.getElementById('importInput').click());
         document.getElementById('importInput').addEventListener('change', (e) => this.importData(e));
         document.getElementById('copyWorkoutBtn').addEventListener('click', () => this.copyWorkout());
-        
-        // Add set buttons
-        document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('add-set-btn')) {
-                this.addSet(e.target.dataset.exercise);
-            }
-            if (e.target.classList.contains('remove-set-btn')) {
-                this.removeSet(e.target.dataset.exercise, parseInt(e.target.dataset.set));
-            }
-        });
     }
 
     addInputEventListeners() {
-        document.querySelectorAll('.set-input').forEach(input => {
+        // Weight inputs for 5x5 exercises
+        document.querySelectorAll('.weight-input').forEach(input => {
             input.addEventListener('input', (e) => {
-                this.updateSet(
+                this.updateExerciseData(
                     e.target.dataset.exercise,
-                    parseInt(e.target.dataset.set),
+                    e.target.dataset.field,
+                    e.target.value
+                );
+            });
+        });
+        
+        // Rep inputs for 5x5 exercises
+        document.querySelectorAll('.set-input-5x5').forEach(input => {
+            input.addEventListener('input', (e) => {
+                this.updateExerciseData(
+                    e.target.dataset.exercise,
+                    'reps',
+                    e.target.value,
+                    parseInt(e.target.dataset.set)
+                );
+            });
+        });
+        
+        // Pullups reps input
+        document.querySelectorAll('.pullups-input').forEach(input => {
+            input.addEventListener('input', (e) => {
+                this.updateExerciseData(
+                    e.target.dataset.exercise,
                     e.target.dataset.field,
                     e.target.value
                 );
@@ -344,65 +320,53 @@ class WorkoutTracker {
     }
 
     // Data Updates
-    updateSet(exerciseName, setIndex, field, value) {
-        const weekData = this.getWeekData(this.currentWeek);
-        const workoutData = weekData.workouts[this.currentWorkout];
+    updateExerciseData(exerciseName, field, value, setIndex = null) {
+        const workoutData = this.getWorkoutData(this.selectedDate);
         
         if (!workoutData.exercises[exerciseName]) {
-            workoutData.exercises[exerciseName] = { sets: [] };
+            workoutData.exercises[exerciseName] = {};
         }
         
-        if (!workoutData.exercises[exerciseName].sets[setIndex]) {
-            workoutData.exercises[exerciseName].sets[setIndex] = {};
+        if (field === 'reps' && setIndex !== null) {
+            // Handle 5x5 reps array
+            if (!workoutData.exercises[exerciseName].reps) {
+                workoutData.exercises[exerciseName].reps = ['', '', '', '', ''];
+            }
+            workoutData.exercises[exerciseName].reps[setIndex] = value;
+        } else {
+            // Handle other fields (weight, pullups reps)
+            workoutData.exercises[exerciseName][field] = value;
         }
         
-        workoutData.exercises[exerciseName].sets[setIndex][field] = value;
         this.saveData();
-        this.renderWeekList();
-        this.renderWorkoutTabs();
+        this.renderWorkoutHistory();
+        this.renderCurrentWorkoutHeader();
     }
 
-    addSet(exerciseName) {
-        const weekData = this.getWeekData(this.currentWeek);
-        const workoutData = weekData.workouts[this.currentWorkout];
+    // Helper methods
+    hasWorkoutData(date) {
+        const workoutData = this.data.workouts.find(workout => workout.date === date);
+        if (!workoutData) return false;
         
-        if (!workoutData.exercises[exerciseName]) {
-            workoutData.exercises[exerciseName] = { sets: [] };
-        }
-        
-        workoutData.exercises[exerciseName].sets.push({
-            reps: '',
-            seconds: '',
-            minutes: '',
-            weight: '',
-            notes: '',
-            unit: 'lb'
+        // Check if any exercise has data
+        return Object.values(workoutData.exercises).some(exercise => {
+            if (exercise.weight && this.hasValue(exercise.weight)) return true;
+            if (exercise.reps) {
+                if (Array.isArray(exercise.reps)) {
+                    // 5x5 exercise
+                    return exercise.reps.some(rep => this.hasValue(rep));
+                } else {
+                    // Pullups exercise
+                    return this.hasValue(exercise.reps);
+                }
+            }
+            return false;
         });
-        
-        this.saveData();
-        this.renderWeekList();
-        this.renderWorkoutTabs();
-        this.renderWorkoutContent();
-        
-        // Focus the first field (reps/seconds/minutes) of the newly added set
-        const newSetIndex = workoutData.exercises[exerciseName].sets.length - 1;
-        const firstInput = document.querySelector(`[data-exercise="${exerciseName}"][data-set="${newSetIndex}"][data-field="reps"], [data-exercise="${exerciseName}"][data-set="${newSetIndex}"][data-field="seconds"], [data-exercise="${exerciseName}"][data-set="${newSetIndex}"][data-field="minutes"]`);
-        if (firstInput) {
-            firstInput.focus();
-        }
     }
 
-    removeSet(exerciseName, setIndex) {
-        const weekData = this.getWeekData(this.currentWeek);
-        const workoutData = weekData.workouts[this.currentWorkout];
-        
-        if (workoutData.exercises[exerciseName] && workoutData.exercises[exerciseName].sets) {
-            workoutData.exercises[exerciseName].sets.splice(setIndex, 1);
-            this.saveData();
-            this.renderWeekList();
-            this.renderWorkoutTabs();
-            this.renderWorkoutContent();
-        }
+    formatShortDate(dateString) {
+        const date = new Date(dateString);
+        return `${date.getMonth() + 1}/${date.getDate()}`;
     }
 
     // Export/Import
@@ -441,11 +405,10 @@ class WorkoutTracker {
 
     // Copy Workout
     copyWorkout() {
-        const workout = this.workoutPlan[this.currentWorkout];
-        const weekData = this.getWeekData(this.currentWeek);
-        const workoutData = weekData.workouts[this.currentWorkout];
+        const workout = this.getWorkoutPlan(this.currentWorkout);
+        const workoutData = this.getWorkoutData(this.selectedDate);
         
-        const today = new Date().toLocaleDateString('en-US', { 
+        const today = new Date(this.selectedDate).toLocaleDateString('en-US', { 
             month: 'numeric', 
             day: 'numeric', 
             year: 'numeric' 
@@ -453,40 +416,24 @@ class WorkoutTracker {
         
         let workoutText = `${today} | ${workout.name}\n`;
         
-        // Only include circuit and finisher exercises with recorded sets
-        ['circuit', 'finisher'].forEach(section => {
-            workout[section].exercises.forEach(exercise => {
-                const exerciseData = workoutData.exercises[exercise.name];
-                if (exerciseData && exerciseData.sets && exerciseData.sets.length > 0) {
-                    const recordedSets = exerciseData.sets.filter(set => {
-                        const hasValue = this.hasValue(set.reps) || this.hasValue(set.seconds) || this.hasValue(set.minutes);
-                        const hasWeightOrNotes = exercise.weight ? this.hasValue(set.weight) : true;
-                        return hasValue && hasWeightOrNotes;
-                    });
+        workout.exercises.forEach(exercise => {
+            const exerciseData = workoutData.exercises[exercise.name];
+            if (exerciseData) {
+                if (exercise.type === '5x5') {
+                    const weight = exerciseData.weight || '0';
+                    const reps = exerciseData.reps || ['', '', '', '', ''];
+                    const completedSets = reps.filter(rep => this.hasValue(rep)).length;
                     
-                    if (recordedSets.length > 0) {
-                        // Group equivalent sets together
-                        const setGroups = {};
-                        recordedSets.forEach(set => {
-                            const value = set.reps || set.seconds || set.minutes;
-                            const unit = set.reps ? 'x' : (set.seconds ? 'sec' : 'min');
-                            const weight = exercise.weight ? `/${set.weight}lb` : '';
-                            const key = `${value}${unit}${weight}`;
-                            
-                            if (!setGroups[key]) {
-                                setGroups[key] = 0;
-                            }
-                            setGroups[key]++;
-                        });
-                        
-                        const setsText = Object.entries(setGroups).map(([key, count]) => {
-                            return `${count}x/${key}`;
-                        }).join(', ');
-                        
-                        workoutText += `${exercise.name}: ${setsText}\n`;
+                    if (completedSets > 0) {
+                        workoutText += `${exercise.name}: ${weight}lb × ${completedSets} sets\n`;
+                    }
+                } else if (exercise.type === 'pullups') {
+                    const reps = exerciseData.reps || '0';
+                    if (this.hasValue(reps)) {
+                        workoutText += `${exercise.name}: ${reps} reps\n`;
                     }
                 }
-            });
+            }
         });
         
         navigator.clipboard.writeText(workoutText).then(() => {
@@ -501,46 +448,6 @@ class WorkoutTracker {
             document.body.removeChild(textArea);
             alert('Workout copied to clipboard!');
         });
-    }
-
-    // Utility
-    getOldestWeekWithData() {
-        const weekNumbers = Object.keys(this.data.weeks)
-            .map(Number)
-            .filter(num => !isNaN(num))
-            .filter(weekNum => {
-                const weekData = this.data.weeks[weekNum];
-                // Check if any workout has any exercises with sets
-                return [1, 2, 3].some(workoutNum => {
-                    const workout = weekData.workouts[workoutNum];
-                    return Object.values(workout.exercises).some(exercise => {
-                        if (!exercise.sets || exercise.sets.length === 0) return false;
-                        // Check if any set has actual data
-                        return exercise.sets.some(set => {
-                            const hasValue = this.hasValue(set.reps) || this.hasValue(set.seconds) || this.hasValue(set.minutes);
-                            const hasWeightOrNotes = this.hasValue(set.weight) || this.hasValue(set.notes);
-                            return hasValue && hasWeightOrNotes;
-                        });
-                    });
-                });
-            });
-        
-        if (weekNumbers.length === 0) {
-            return this.currentWeek;
-        }
-        return Math.min(...weekNumbers);
-    }
-
-    getWeekDateRange(weekNumber) {
-        const year = new Date().getFullYear();
-        const startOfYear = new Date(year, 0, 1);
-        const startOfWeek = new Date(startOfYear);
-        startOfWeek.setDate(startOfYear.getDate() + (weekNumber - 1) * 7);
-        
-        const endOfWeek = new Date(startOfWeek);
-        endOfWeek.setDate(startOfWeek.getDate() + 6);
-        
-        return `${startOfWeek.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })}-${endOfWeek.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })}`;
     }
 }
 

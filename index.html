@@ -18,29 +18,20 @@
         </header>
 
         <main>
-            <!-- Week Overview -->
-            <section class="week-overview">
-                <h2>Week Overview</h2>
-                <div id="weekList" class="week-list">
-                    <!-- Weeks will be populated here -->
+            <!-- Workout History -->
+            <section class="workout-history">
+                <h2>Workout History</h2>
+                <div id="workoutHistory" class="workout-history-list">
+                    <!-- Workout history will be populated here -->
                 </div>
             </section>
 
-            <!-- Workout Tabs -->
+            <!-- Workout Section -->
             <section class="workout-section">
-                <div class="workout-tabs">
-                    <button class="tab-btn active" data-workout="1">
-                        <span class="tab-label">Workout 1</span>
-                        <span class="status-dot incomplete"></span>
-                    </button>
-                    <button class="tab-btn" data-workout="2">
-                        <span class="tab-label">Workout 2</span>
-                        <span class="status-dot incomplete"></span>
-                    </button>
-                    <button class="tab-btn" data-workout="3">
-                        <span class="tab-label">Workout 3</span>
-                        <span class="status-dot incomplete"></span>
-                    </button>
+                <!-- Current Workout Header -->
+                <div class="current-workout-header">
+                    <h3 id="currentWorkoutTitle">Loading...</h3>
+                    <div id="currentWorkoutDate" class="workout-date-display"></div>
                 </div>
 
                 <!-- Workout Content -->
