@@ -25,6 +25,20 @@ class WorkoutTracker {
     return value !== "" && value !== null && value !== undefined;
   }
 
+  // Get the most recent weight for a specific exercise
+  getMostRecentWeight(exerciseName) {
+    // Workouts are already sorted from earliest to latest, so iterate backwards to find the most recent
+    for (let i = this.data.workouts.length - 1; i >= 0; i--) {
+      const workout = this.data.workouts[i];
+      const exerciseData = workout.exercises[exerciseName];
+      if (exerciseData && exerciseData.weight && this.hasValue(exerciseData.weight)) {
+        return exerciseData.weight;
+      }
+    }
+    
+    return ""; // No previous weight found
+  }
+
   getCurrentDate() {
     const now = new Date();
     return now.toISOString().split("T")[0]; // YYYY-MM-DD format
@@ -244,6 +258,7 @@ class WorkoutTracker {
   render5x5Exercise(exercise, exerciseData) {
     const weight = exerciseData.weight || "";
     const reps = exerciseData.reps || ["", "", "", "", ""];
+    const placeholderWeight = this.getMostRecentWeight(exercise.name);
 
     return `
             <div class="exercise-item">
@@ -253,7 +268,7 @@ class WorkoutTracker {
                         <input type="number" class="weight-input" data-exercise="${
                           exercise.name
                         }" data-field="weight" 
-                            value="${weight}" placeholder="0">
+                            value="${weight}" placeholder="${placeholderWeight || '0'}">
                         <span class="weight-unit">lb</span>
                     </div>
                 </div>
