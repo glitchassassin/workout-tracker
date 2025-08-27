@@ -1,6 +1,10 @@
 // Workout Tracker Application - 5x5 Routine
 class WorkoutTracker {
   constructor() {
+    // Add version constant for data migration
+    this.DATA_VERSION = "1.0";
+    this.STORAGE_KEY = `workoutTrackerData_v${this.DATA_VERSION}`;
+
     this.data = this.loadData();
     this.today = this.getCurrentDate();
     this.selectedDate = this.today;
@@ -12,12 +16,64 @@ class WorkoutTracker {
 
   // Data Management
   loadData() {
-    const saved = localStorage.getItem("workoutTrackerData");
-    return saved ? JSON.parse(saved) : { workouts: [] };
+    // Try to load data with current version first
+    let saved = localStorage.getItem(this.STORAGE_KEY);
+
+    if (saved) {
+      return JSON.parse(saved);
+    }
+
+    // If no data with current version, try to migrate from old format
+    const oldData = localStorage.getItem("workoutTrackerData");
+    if (oldData) {
+      const migratedData = this.migrateData(JSON.parse(oldData));
+      // Save migrated data with new version
+      this.saveData(migratedData);
+      return migratedData;
+    }
+
+    // Return default data structure
+    return { workouts: [], version: this.DATA_VERSION };
   }
 
-  saveData() {
-    localStorage.setItem("workoutTrackerData", JSON.stringify(this.data));
+  saveData(data = null) {
+    const dataToSave = data || this.data;
+    // Ensure version is always included
+    dataToSave.version = this.DATA_VERSION;
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(dataToSave));
+  }
+
+  // Data migration method for future format changes
+  migrateData(oldData) {
+    console.log("Migrating data from old format...");
+
+    // Check if data has a version field
+    if (!oldData.version) {
+      // This is the original format (v1.0)
+      // Add version field and ensure data structure is correct
+      const migratedData = {
+        ...oldData,
+        version: this.DATA_VERSION,
+      };
+
+      // Ensure workouts array exists
+      if (!migratedData.workouts) {
+        migratedData.workouts = [];
+      }
+
+      console.log("Data migrated from original format to v1.0");
+      return migratedData;
+    }
+
+    // For future migrations, you can add version-specific logic here
+    // Example:
+    // if (oldData.version === "1.0") {
+    //   // Migrate from v1.0 to v1.1
+    //   return this.migrateFromV1_0ToV1_1(oldData);
+    // }
+
+    // If version is already current, return as-is
+    return oldData;
   }
 
   // Helper method to check if a value has data (handles 0 correctly)
@@ -440,7 +496,9 @@ class WorkoutTracker {
 
   // Export/Import
   exportData() {
-    const dataStr = JSON.stringify(this.data, null, 2);
+    // Ensure version is included in exported data
+    const exportData = { ...this.data, version: this.DATA_VERSION };
+    const dataStr = JSON.stringify(exportData, null, 2);
     const dataBlob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(dataBlob);
 
@@ -462,7 +520,16 @@ class WorkoutTracker {
     reader.onload = (e) => {
       try {
         const importedData = JSON.parse(e.target.result);
-        this.data = importedData;
+
+        // Check if imported data needs migration
+        if (importedData.version !== this.DATA_VERSION) {
+          console.log("Migrating imported data...");
+          const migratedData = this.migrateData(importedData);
+          this.data = migratedData;
+        } else {
+          this.data = importedData;
+        }
+
         this.saveData();
         this.render();
         alert("Data imported successfully!");
