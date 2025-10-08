@@ -8,7 +8,7 @@ class WorkoutTracker {
     this.data = this.loadData();
     this.today = this.getCurrentDate();
     this.selectedDate = this.today;
-    this.currentWorkout = this.getCurrentWorkoutType();
+    this.currentWorkout = this.getWorkoutTypeForDate(this.selectedDate);
 
     this.initializeEventListeners();
     this.render();
@@ -222,8 +222,8 @@ class WorkoutTracker {
 
   // UI Rendering
   render() {
-    // Update current workout type to ensure it's always current
-    this.currentWorkout = this.getCurrentWorkoutType();
+    // Update current workout type based on the selected date
+    this.currentWorkout = this.getWorkoutTypeForDate(this.selectedDate);
 
     this.renderWorkoutHistory();
     this.renderCurrentWorkoutHeader();
